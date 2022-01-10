@@ -3,13 +3,11 @@
 # testing
 /coverage
 
-# production
-/build
-
-# Static Files
+# staticfiles and media
+/static
+/media
 
 # misc
-.DS_Store
 .env
 .env.local
 .env.development.local
