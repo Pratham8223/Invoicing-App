@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+
 import os
 from pathlib import Path
 import dotenv
@@ -48,7 +49,6 @@ INSTALLED_APPS = [
     'api.shop'
 ]
 
-STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'users.CustomUser'
 
 STATICFILES_DIRS = [
