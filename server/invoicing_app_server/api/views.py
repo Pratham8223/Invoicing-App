@@ -10,4 +10,7 @@ from django.core.handlers.wsgi import WSGIRequest
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def check_auth(request: WSGIRequest):
-    return Response({'username': request.user.username})
+    """
+        TEST ROUTE FOR NOW.
+    """
+    return Response({'email': request.user.shop.name})

@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(max_length=50, unique=True)
 
     is_email_verified = models.BooleanField(default=False)
-    is_phone_verified = models.BooleanField(default=False)
+    # is_phone_verified = models.BooleanField(default=False)
 
     shop = models.OneToOneField(Shop, null=True, on_delete=models.SET_NULL)
 
