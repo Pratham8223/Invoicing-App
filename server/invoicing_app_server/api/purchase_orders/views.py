@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from .models import PurchaseOrder, POItem
 from .serializers import PurchaseOrderSerializer, POItemSerializer
 from ..shop.models import Product
-from ..shop.serializers import ProductSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -40,7 +39,7 @@ def purchase_orders(request: WSGIRequest):
 
                     if temp_p.shop == request.user.shop:
                         po_itm.product = temp_p
-                        temp_p.stock -= 1
+                        temp_p.stock -= itm['quantity']
 
                     else:
                         nw_po.delete()
@@ -74,18 +73,67 @@ def purchase_orders(request: WSGIRequest):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def purchase_orders_id(request: WSGIRequest, id: int):
-    pass
+    try:
+        edit_po = json.loads(request.body)
+
+        po = PurchaseOrder.objects.get(id=id)
+
+        if po.shop != request.user.shop:
+            return Response({'err': f'Cannot edit purchase order with id {id}'}, status=401)
+
+        try:
+            po.customer_name = edit_po['customer_name']
+            po.save()
+
+            u_pos_serialized = PurchaseOrderSerializer(po).data
+            u_pos_serialized['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order=po), many=True).data
+            return Response(u_pos_serialized)
+
+        except Exception as e:
+            return Response({'err': str(e)}, status=400)
+
+    except Exception as e:
+        return Response({'err': str(e)})
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
-def po_item(request: WSGIRequest, po_id: int):
-    pass
+def po_item_id(request: WSGIRequest, po_itm_id: int):
+    try:
+        edit_po_data = json.loads(request.body)
+
+        po_itm_obj = POItem.objects.get(id=po_itm_id)
+
+        for key, val in edit_po_data.items():
+            setattr(po_itm_obj, key, val)
+
+        setattr(po_itm_obj, 'amount', edit_po_data['cost'] * edit_po_data['quantity'])
+        po_itm_obj.save()
+
+        po = recalculate_po(po_itm_obj.purchase_order.id)
+        po_itm_obj.save()
+
+        u_pos_serialized = PurchaseOrderSerializer(po).data
+        u_pos_serialized['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order=po),
+                                                        many=True).data
+        return Response(u_pos_serialized)
+
+    except Exception as e:
+        return Response({'err': str(e)})
 
 
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def po_item_id(request: WSGIRequest, po_id: int, po_itm_id: int):
-    return Response({'route': f'purchase_orders/{po_id}/po_item/{po_itm_id}/'})
+def recalculate_po(po_id: int):
+    po = PurchaseOrder.objects.get(id=po_id)
+
+    po.subtotal = 0
+    po.discount = 0
+    po.tax = 0
+
+    for po_itm in POItem.objects.filter(purchase_order=po):
+        po.subtotal += po_itm.amount
+        po.discount += po_itm.discount
+        po.tax += po_itm.tax
+
+    po.save()
+    return po

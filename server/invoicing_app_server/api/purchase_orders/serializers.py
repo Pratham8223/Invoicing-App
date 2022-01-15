@@ -12,6 +12,7 @@ class POItemSerializer(ModelSerializer):
     class Meta:
         model = POItem
         fields = (
+            'id',
             'product_name',
             'cost',
             'discount',
