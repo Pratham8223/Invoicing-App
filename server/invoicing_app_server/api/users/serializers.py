@@ -36,7 +36,7 @@ class CustomUserSerializer(ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'email', 'phone', 'is_email_verified', 'is_phone_verified')
+        fields = ('first_name', 'last_name', 'email', 'phone', 'is_email_verified')
 
 
 class OTPSessionSerializer(ModelSerializer):
