@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -6,8 +7,8 @@ from rest_framework.decorators import authentication_classes, api_view, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.shop.models import Shop
-from api.shop.serializers import ShopSerializer
+from api.shop.models import Shop, Product
+from api.shop.serializers import ShopSerializer, ProductSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -63,4 +64,48 @@ def shop(request: WSGIRequest):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def shop_id(request: WSGIRequest, id: int):
-    pass
+    return Response({})
+
+
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def product(request: WSGIRequest):
+    if request.method == 'GET':
+        return Response(ProductSerializer(Product.objects.filter(shop=request.user.shop), many=True).data)
+
+    if request.method == 'POST':
+        nw_product = json.loads(request.body)
+
+        try:
+            if len(nw_product['name']) < 4:
+                return Response({'err': 'product_name too short.'})
+
+            if nw_product['price'] < 0:
+                return Response({'err': 'price cannot be negative.'})
+
+            if nw_product['tax'] < 0:
+                return Response({'err': 'tax cannot be negative'})
+
+        except Exception as e:
+            return Response({'err': str(e)})
+
+        try:
+            nw_product_obj = Product(
+                name=nw_product['name'],
+                price=nw_product['price'],
+                tax=nw_product['tax'],
+                shop=request.user.shop
+            )
+            nw_product_obj.save()
+            return Response(ProductSerializer(nw_product_obj).data)
+
+        except Exception as e:
+            return Response({'err': str(e)})
+
+
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def product_id(request: WSGIRequest, id: int):
+    return Response({})

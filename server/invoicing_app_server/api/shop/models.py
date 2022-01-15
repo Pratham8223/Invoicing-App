@@ -20,7 +20,6 @@ class Product(models.Model):
 
     price = models.FloatField()
     tax = models.FloatField()
-    discount = models.FloatField()
 
     available_stock = models.IntegerField()
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, default=None, null=True)
