@@ -6,9 +6,9 @@
 # staticfiles and media
 /static
 /media
+/.idea
 
 # misc
-.idea
 .env
 .env.local
 .env.development.local
