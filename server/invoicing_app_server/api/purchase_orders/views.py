@@ -39,7 +39,7 @@ def purchase_orders(request: WSGIRequest):
 
                     if temp_p.shop == request.user.shop:
                         po_itm.product = temp_p
-                        temp_p.stock -= itm['quantity']
+                        temp_p.available_stock -= itm['quantity']
 
                     else:
                         nw_po.delete()
@@ -93,7 +93,7 @@ def purchase_orders_id(request: WSGIRequest, id: int):
             return Response({'err': str(e)}, status=400)
 
     except Exception as e:
-        return Response({'err': str(e)})
+        return Response({'err': str(e)}, status=400)
 
 
 @api_view(['PUT'])
@@ -106,7 +106,10 @@ def po_item_id(request: WSGIRequest, po_itm_id: int):
         po_itm_obj = POItem.objects.get(id=po_itm_id)
 
         for key, val in edit_po_data.items():
-            setattr(po_itm_obj, key, val)
+            if key == 'product':
+                setattr(po_itm_obj, key, Product.objects.get(id=val, shop=request.user.shop))
+            else:
+                setattr(po_itm_obj, key, val)
 
         setattr(po_itm_obj, 'amount', edit_po_data['cost'] * edit_po_data['quantity'])
         po_itm_obj.save()
@@ -120,7 +123,7 @@ def po_item_id(request: WSGIRequest, po_itm_id: int):
         return Response(u_pos_serialized)
 
     except Exception as e:
-        return Response({'err': str(e)})
+        return Response({'err': str(e)}, status=400)
 
 
 def recalculate_po(po_id: int):

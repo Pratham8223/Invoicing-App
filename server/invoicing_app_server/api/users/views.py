@@ -41,7 +41,7 @@ def user(request):
         nu_data['is_phone_verified'] = False
 
     except Exception as e:
-        return JsonResponse({'err': "Missing : " + str(e)}, status=401)
+        return JsonResponse({'err': "Missing : " + str(e)}, status=400)
 
     # Validate and save user.
     usr = CustomUser()
@@ -53,10 +53,12 @@ def user(request):
     try:
         usr.save()
     except Exception as e:
-        return JsonResponse({'err': str(e)})
+        return JsonResponse({'err': str(e)}, status=400)
 
     return JsonResponse(CustomUserSerializer(usr).data)
 
+
+# TODO : Create another app 'auth' for auth routes.
 
 @csrf_exempt
 @api_view(['PUT'])
@@ -67,7 +69,7 @@ def user_id(request: WSGIRequest, id: int):
 
     # Validations
     if request.user.id != id:
-        return JsonResponse({'err': "Invalid action"})
+        return JsonResponse({'err': "Invalid action"}, status=401)
 
     try:
         if edit_data['first_name'] or edit_data['last_name']:
@@ -84,13 +86,16 @@ def user_id(request: WSGIRequest, id: int):
         usr.last_name = edit_data['last_name']
         usr.save()
     except Exception as e:
-        return JsonResponse({'err': str(e)})
+        return JsonResponse({'err': str(e)}, status=400)
 
     return JsonResponse(CustomUserSerializer(usr).data)
 
 
 @csrf_exempt
 def api_login(request: WSGIRequest):
+    if request.method != 'POST':
+        return JsonResponse({'err': "invalid http request"}, status=405)
+
     usr_credentials = json.loads(request.body)
 
     try:
@@ -118,7 +123,6 @@ def api_login(request: WSGIRequest):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def api_logout(request: WSGIRequest):
-
     tkn = request.headers['Authorization'].split(' ')[-1]
 
     try:

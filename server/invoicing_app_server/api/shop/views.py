@@ -55,7 +55,7 @@ def shop(request: WSGIRequest):
             request.user.shop.save()
             request.user.save()
         except Exception as e:
-            return Response({'err': str(e)})
+            return Response({'err': str(e)}, status=400)
 
         return Response(ShopSerializer(shop_obj, context={'request': request}).data)
 
@@ -64,7 +64,31 @@ def shop(request: WSGIRequest):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def shop_id(request: WSGIRequest, id: int):
-    return Response({})
+    # NOTE : User formdata at frontend
+    try:
+        for key, val in request.POST.items():
+            setattr(request.user.shop, key, val)
+
+            if key == 'name':
+                if not bool(re.match('[a-zA-Z\s]+$', val)):
+                    return Response({'err': 'name of shop cannot have special characters.'}, status=400)
+            setattr(request.user.shop, key, val)
+
+            if key == 'address':
+                if len(val) < 10:
+                    return Response({'err': 'must be bigger than 10 chars'})
+            setattr(request.user.shop, key, val)
+
+        try:
+            request.user.shop.logo = request.FILES['logo']
+        except Exception:
+            pass
+
+        request.user.shop.save()
+        return Response(ShopSerializer(request.user.shop, context={'request': request}).data)
+
+    except Exception as e:
+        return Response({'err': str(e)}, status=400)
 
 
 @api_view(['GET', 'POST'])
@@ -79,33 +103,64 @@ def product(request: WSGIRequest):
 
         try:
             if len(nw_product['name']) < 4:
-                return Response({'err': 'product_name too short.'})
+                return Response({'err': 'product_name too short.'}, status=400)
 
             if nw_product['price'] < 0:
-                return Response({'err': 'price cannot be negative.'})
+                return Response({'err': 'price cannot be negative.'}, status=400)
 
             if nw_product['tax'] < 0:
-                return Response({'err': 'tax cannot be negative'})
+                return Response({'err': 'tax cannot be negative'}, status=400)
+
+            if nw_product['available_stock'] < 0:
+                return Response({'err': 'available_stock cannot be negative'}, status=400)
 
         except Exception as e:
-            return Response({'err': str(e)})
+            return Response({'err': str(e)}, status=400)
 
         try:
             nw_product_obj = Product(
                 name=nw_product['name'],
                 price=nw_product['price'],
                 tax=nw_product['tax'],
+                available_stock=nw_product['available_stock'],
                 shop=request.user.shop
             )
             nw_product_obj.save()
             return Response(ProductSerializer(nw_product_obj).data)
 
         except Exception as e:
-            return Response({'err': str(e)})
+            return Response({'err': str(e)}, status=400)
 
 
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def product_id(request: WSGIRequest, id: int):
-    return Response({})
+    edit_product_body = json.loads(request.body)
+
+    try:
+        edit_product_obj = Product.objects.get(id=id, shop=request.user.shop)
+
+        for key, val in edit_product_body.items():
+            if key == 'name':
+                if len(val) < 4:
+                    return Response({'err': 'product_name too short.'}, status=400)
+                setattr(edit_product_obj, key, val)
+
+            if key == 'price':
+                if val < 0:
+                    return Response({'err': 'price cannot be negative.'}, status=400)
+                setattr(edit_product_obj, key, val)
+
+            if key == 'tax':
+                if val < 0:
+                    return Response({'err': 'tax cannot be negative'}, status=400)
+                setattr(edit_product_obj, key, val)
+
+            setattr(edit_product_obj, key, val)
+
+        edit_product_obj.save()
+        return Response(ProductSerializer(edit_product_obj).data)
+
+    except Exception as e:
+        return Response({'err': str(e)}, status=400)
