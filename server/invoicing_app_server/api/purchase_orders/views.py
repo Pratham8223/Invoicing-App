@@ -1,14 +1,17 @@
 import json
 
 from django.core.handlers.wsgi import WSGIRequest
+from django.http import FileResponse
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from invoice_helper.invoice_helper import Invoice
 from .models import PurchaseOrder, POItem
 from .serializers import PurchaseOrderSerializer, POItemSerializer
 from ..shop.models import Product
+from ..shop.serializers import ShopSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -27,7 +30,9 @@ def purchase_orders(request: WSGIRequest):
         po_details = json.loads(request.body)
 
         try:
-            nw_po = PurchaseOrder(customer_name=po_details['customer_name'], shop=request.user.shop)
+            nw_po = PurchaseOrder(customer_name=po_details['customer_name'],
+                                  customer_email=po_details['customer_email'],
+                                  customer_phone=po_details['customer_phone'], shop=request.user.shop)
             nw_po.invoice_no = PurchaseOrder.objects.filter(shop=request.user.shop).count() + 1
 
             for itm in po_details['po_items']:
@@ -69,10 +74,31 @@ def purchase_orders(request: WSGIRequest):
             return Response({'err': str(e)}, status=400)
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def purchase_orders_id(request: WSGIRequest, id: int):
+    if request.method == 'GET':
+        if 'res' in dict(request.GET.items()).keys():
+            if dict(request.GET.items())['res'] == 'invoice':
+                try:
+                    inv_details = PurchaseOrderSerializer(PurchaseOrder.objects.get(id=id, shop=request.user.shop)).data
+                except Exception as e:
+                    print(e)
+                    return Response({'err': "Unauthorized"}, status=401)
+
+                po_itm = []
+
+                for itm in POItemSerializer(POItem.objects.filter(purchase_order__id=id), many=True).data:
+                    po_itm.append(dict(itm))
+
+                inv_details['po_items'] = po_itm
+                inv_details['shop'] = ShopSerializer(request.user.shop).data
+
+                Invoice(inv_details).get_output(str(id))
+                return FileResponse(open(f'./invoices/{str(id)}.pdf', 'rb'))
+        return Response({})
+
     try:
         edit_po = json.loads(request.body)
 

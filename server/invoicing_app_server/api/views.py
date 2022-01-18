@@ -5,6 +5,10 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from django.core.handlers.wsgi import WSGIRequest
 from django.http.response import JsonResponse
 
+"""
+    MAYBE IN FUTURE : Add pagination.. 
+"""
+
 
 # Create your views here.
 @api_view(['GET'])

@@ -7,6 +7,8 @@ class PurchaseOrder(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     customer_name = models.CharField(max_length=40, default=None, null=True)
+    customer_email = models.CharField(max_length=40, default=None, null=True)
+    customer_phone = models.CharField(max_length=40, default=None, null=True)
 
     subtotal = models.FloatField(default=0.0)
     tax = models.FloatField(default=0.0)
