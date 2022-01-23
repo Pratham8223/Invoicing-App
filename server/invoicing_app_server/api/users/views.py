@@ -58,8 +58,6 @@ def user(request):
     return JsonResponse(CustomUserSerializer(usr).data)
 
 
-# TODO : Create another app 'auth' for auth routes.
-
 @csrf_exempt
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication])
@@ -76,7 +74,7 @@ def user_id(request: WSGIRequest, id: int):
             if (not edit_data['first_name'].isalpha()) or (not edit_data['last_name'].isalpha()):
                 return JsonResponse({'err': 'Name cannot be alpha numeric'}, status=401)
 
-    except Exception as e:
+    except Exception:
         pass
 
     # Validate and save user.

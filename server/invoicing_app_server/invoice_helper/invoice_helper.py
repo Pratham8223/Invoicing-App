@@ -106,7 +106,9 @@ class Invoice:
         self.pdf.multi_cell(0, 0, '', 1, 1)
         self.pdf.multi_cell(0, 8, '')
         self.pdf.multi_cell(0, 16,
-                            f"Tax : {str(self.invoice_details['tax'])}%\nDiscount : {str(self.invoice_details['discount'])}%\nSubtotal : Rs. {str(self.invoice_details['subtotal'])}",
+                            f"Tax : {str(self.invoice_details['tax'])}%\n"
+                            f"Discount : {str(self.invoice_details['discount'])}%\n"
+                            f"Subtotal : Rs. {str(self.invoice_details['subtotal'])}",
                             0, 'L')
         self.pdf.multi_cell(0, 8, '')
         self.pdf.multi_cell(0, 0, '', 1, 1)

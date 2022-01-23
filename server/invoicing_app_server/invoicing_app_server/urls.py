@@ -19,6 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+# Set Admin Panel
+admin.site.site_header = 'Invoicer Administration'
+admin.site.index_title = 'Dashboard'
+admin.site.site_title = 'Invoicer site admin'
+
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('api/v1/', include('api.urls'))

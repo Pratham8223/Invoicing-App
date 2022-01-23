@@ -79,25 +79,27 @@ def purchase_orders(request: WSGIRequest):
 @permission_classes([IsAuthenticated])
 def purchase_orders_id(request: WSGIRequest, id: int):
     if request.method == 'GET':
+
+        try:
+            inv_details = PurchaseOrderSerializer(PurchaseOrder.objects.get(id=id, shop=request.user.shop)).data
+        except Exception as e:
+            print(e)
+            return Response({'err': "Unauthorized"}, status=401)
+
+        po_itm = []
+
+        for itm in POItemSerializer(POItem.objects.filter(purchase_order__id=id), many=True).data:
+            po_itm.append(dict(itm))
+
+        inv_details['po_items'] = po_itm
+        inv_details['shop'] = ShopSerializer(request.user.shop).data
+
         if 'res' in dict(request.GET.items()).keys():
             if dict(request.GET.items())['res'] == 'invoice':
-                try:
-                    inv_details = PurchaseOrderSerializer(PurchaseOrder.objects.get(id=id, shop=request.user.shop)).data
-                except Exception as e:
-                    print(e)
-                    return Response({'err': "Unauthorized"}, status=401)
-
-                po_itm = []
-
-                for itm in POItemSerializer(POItem.objects.filter(purchase_order__id=id), many=True).data:
-                    po_itm.append(dict(itm))
-
-                inv_details['po_items'] = po_itm
-                inv_details['shop'] = ShopSerializer(request.user.shop).data
-
                 Invoice(inv_details).get_output(str(id))
                 return FileResponse(open(f'./invoices/{str(id)}.pdf', 'rb'))
-        return Response({})
+
+        return Response(inv_details)
 
     try:
         edit_po = json.loads(request.body)
