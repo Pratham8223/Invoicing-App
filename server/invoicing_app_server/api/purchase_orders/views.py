@@ -2,7 +2,7 @@ import json
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import FileResponse
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,11 +15,15 @@ from ..shop.serializers import ShopSerializer
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def purchase_orders(request: WSGIRequest):
     if request.method == 'GET':
-        u_pos = PurchaseOrder.objects.filter(shop=request.user.shop)
+        if 'month' in list(request.GET.keys()) and 'year' in list(request.GET.keys()):
+            u_pos = PurchaseOrder.objects.filter(shop=request.user.shop, created_at__year=int(request.GET['year']), created_at__month=int(request.GET['month']))
+        else:
+            u_pos = PurchaseOrder.objects.filter(shop=request.user.shop)
+
         u_pos_serialized = PurchaseOrderSerializer(u_pos, many=True).data
         for i in u_pos_serialized:
             i['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order__id=i['id']), many=True).data
@@ -75,7 +79,7 @@ def purchase_orders(request: WSGIRequest):
 
 
 @api_view(['PUT', 'GET'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def purchase_orders_id(request: WSGIRequest, id: int):
     if request.method == 'GET':
@@ -125,7 +129,7 @@ def purchase_orders_id(request: WSGIRequest, id: int):
 
 
 @api_view(['PUT'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def po_item_id(request: WSGIRequest, po_itm_id: int):
     try:

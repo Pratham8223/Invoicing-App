@@ -3,7 +3,7 @@ import json
 from django.contrib.auth import login, logout
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication, BasicAuthentication
 from rest_framework.decorators import permission_classes, authentication_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
@@ -35,26 +35,30 @@ def api_login(request: WSGIRequest):
             login(request, user=usr)
             return JsonResponse({'token': 'Token ' + token.key})
         else:
-            return JsonResponse({'err': 'incorrect password.'}, status=401)
+            return JsonResponse({'err': 'Incorrect password.'}, status=401)
 
     except Exception as e:
-        print(e)
-        return JsonResponse({'err': 'invalid email or password'}, status=400)
+        return JsonResponse({'err': 'Invalid email or password.'}, status=400)
 
 
 @csrf_exempt
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_logout(request: WSGIRequest):
-    tkn = request.headers['Authorization'].split(' ')[-1]
 
-    try:
-        del_token = Token.objects.get(user=request.user, key=tkn)
-        del_token.delete()
+    if 'Authorization' in list(request.headers.keys()):
+        tkn = request.headers['Authorization'].split(' ')[-1]
+
+        try:
+            del_token = Token.objects.get(user=request.user, key=tkn)
+            del_token.delete()
+            logout(request)
+
+            return Response({'message': 'Logged out successfully.'})
+        except Exception as e:
+
+            return Response({'err': 'invalid user or authtoken'}, status=400)
+    else:
         logout(request)
-
         return Response({'message': 'Logged out successfully.'})
-    except Exception as e:
-
-        return Response({'err': 'invalid user or authtoken'}, status=400)

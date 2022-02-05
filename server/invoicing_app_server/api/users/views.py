@@ -4,7 +4,7 @@ import re
 from django.contrib.auth import login, logout
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import permission_classes, authentication_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
@@ -60,7 +60,7 @@ def user(request):
 
 @csrf_exempt
 @api_view(['PUT'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def user_id(request: WSGIRequest, id: int):
     edit_data = json.loads(request.body)
@@ -118,7 +118,7 @@ def api_login(request: WSGIRequest):
 
 @csrf_exempt
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_logout(request: WSGIRequest):
     tkn = request.headers['Authorization'].split(' ')[-1]

@@ -182,19 +182,18 @@ const MobileNav = ({ onOpen, ...rest }) => {
                 aria-label="open menu"
                 icon={<FiMenu />}
             />
-
             <Text
                 display={{ base: 'flex', md: 'none' }}
                 fontSize="2xl"
                 fontFamily="monospace"
                 fontWeight="bold">
-                Logo
+                Invoicerr
             </Text>
 
             <HStack spacing={{ base: '0', md: '6' }}>
                 <Flex alignItems={'center'}>
                     <Menu>
-                        <IconButton m='4' icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
+                        <IconButton mr='4' icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
                         <MenuButton
                             py={2}
                             transition="all 0.3s"
@@ -208,7 +207,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">Justina Clark</Text>
+                                    <Text fontSize="sm">Rick</Text>
                                     <Text fontSize="xs" color="gray.600">
                                         The Pawn Shop
                                     </Text>
@@ -237,7 +236,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                         status: 'info'
                                     })
                                 }, () => {
-                                    
+
                                 })
                             }} color='red.500'>Sign out</MenuItem>
                         </MenuList>

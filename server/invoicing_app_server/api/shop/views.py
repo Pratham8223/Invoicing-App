@@ -2,7 +2,7 @@ import json
 import re
 
 from django.core.handlers.wsgi import WSGIRequest
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,7 +12,7 @@ from api.shop.serializers import ShopSerializer, ProductSerializer
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def shop(request: WSGIRequest):
     if request.method == 'GET':
@@ -61,7 +61,7 @@ def shop(request: WSGIRequest):
 
 
 @api_view(['PUT'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def shop_id(request: WSGIRequest, id: int):
     # NOTE : User formdata at frontend
@@ -92,7 +92,7 @@ def shop_id(request: WSGIRequest, id: int):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def product(request: WSGIRequest):
     if request.method == 'GET':
@@ -133,7 +133,7 @@ def product(request: WSGIRequest):
 
 
 @api_view(['PUT'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def product_id(request: WSGIRequest, id: int):
     edit_product_body = json.loads(request.body)
