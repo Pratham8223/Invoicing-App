@@ -36,6 +36,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import AuthAction from '../../actions/AuthAction';
 import { loginContext } from '../../contexts/LoginContextProvider';
+import { profileContext } from '../../contexts/ProfileContextProvider';
 
 
 export default function Sidebar({
@@ -162,6 +163,9 @@ const NavItem = ({ icon, children, ...rest }) => {
 const MobileNav = ({ onOpen, ...rest }) => {
     const { colorMode, toggleColorMode } = useColorMode()
     const { setIsLoggedIn } = useContext(loginContext)
+
+    const { profile } = useContext(profileContext)
+
     const toast = useToast()
 
     return (
@@ -193,23 +197,23 @@ const MobileNav = ({ onOpen, ...rest }) => {
             <HStack spacing={{ base: '0', md: '6' }}>
                 <Flex alignItems={'center'}>
                     <Menu>
-                        <IconButton mr='4' icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
+                        <IconButton mr='4' 
+                        variant='outline'
+                        icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
                         <MenuButton
                             py={2}
                             transition="all 0.3s"
                             _focus={{ boxShadow: 'none' }}>
                             <HStack>
-                                <Avatar
-                                    size={'sm'}
-                                ></Avatar>
+                                <Avatar size='sm' />
                                 <VStack
                                     display={{ base: 'none', md: 'flex' }}
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">Rick</Text>
+                                    <Text fontSize="sm">{profile?.first_name} {profile?.last_name}</Text>
                                     <Text fontSize="xs" color="gray.600">
-                                        The Pawn Shop
+                                        {profile.shop?.name}
                                     </Text>
                                 </VStack>
                                 <Box display={{ base: 'none', md: 'flex' }}>
@@ -236,7 +240,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
                                         status: 'info'
                                     })
                                 }, () => {
-
+                                    // Something went wrong...
                                 })
                             }} color='red.500'>Sign out</MenuItem>
                         </MenuList>

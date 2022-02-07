@@ -7,7 +7,6 @@ import LoginPage from './pages/auth/LoginPage';
 import HomePage from './pages/home/HomePage';
 import LoadingBar from 'react-top-loading-bar';
 import { loadingRef } from './refs/LoadingRef';
-import BaseRedirectPage from './pages/home/BaseRedirectPage';
 import SettingPage from './pages/settings/SettingPage';
 import NewPOPage from './pages/new_po/NewPOPage';
 import PurchaseOrderPage from './pages/purchase_orders/PurchaseOrderPage';
@@ -17,24 +16,24 @@ import POMonthYearProvider from './contexts/POMonthYearProvider';
 import ProfileContextProvider from './contexts/ProfileContextProvider';
 import PODataProvider from './contexts/PODataProvider';
 import ProductDataProvider from './contexts/ProductDataProvider';
+import BaseRedirectPage from './pages/home/BaseRedirectPage';
 
 function App() {
-
   return (
     <BrowserRouter>
-      {/* Providers */}
-      <POMonthYearProvider>
-        <ProfileContextProvider>
-          <PODataProvider>
+      <PODataProvider>
+        <POMonthYearProvider>
+          <ProfileContextProvider>
             <ProductDataProvider>
               <LoginContextProvider>
-                {/* Until Here*/}
                 <LoadingBar ref={loadingRef} color='#0BC5EA' />
 
                 <Routes>
                   <Route path='/login' element={<LoginPage />} />
 
-                  <Route path='/' element={<BaseRedirectPage />} />
+                  <Route path='/' element={<ProtectedRoute />} >
+                    <Route path='/' element={<BaseRedirectPage />} />
+                  </Route>
 
                   <Route path='/' element={<ProtectedRoute />}>
                     <Route path='/home' element={
@@ -82,10 +81,10 @@ function App() {
                 </Routes>
               </LoginContextProvider>
             </ProductDataProvider>
-          </PODataProvider>
-        </ProfileContextProvider>
-      </POMonthYearProvider>
-    </BrowserRouter>
+          </ProfileContextProvider>
+        </POMonthYearProvider>
+      </PODataProvider>
+    </BrowserRouter >
   );
 }
 

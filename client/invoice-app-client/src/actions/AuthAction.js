@@ -23,7 +23,6 @@ export default class AuthAction {
             if (res.status > 499) {
                 onError((await res.json()).err);
             }
-            console.log(document.cookie);
         } catch (error) {
             onError("Something went wrong.")
         }

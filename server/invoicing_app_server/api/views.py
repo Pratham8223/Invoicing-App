@@ -24,8 +24,10 @@ from api.users.serializers import CustomUserSerializer
 @permission_classes([IsAuthenticated])
 def home(request: WSGIRequest):
     res = {'user': CustomUserSerializer(request.user).data,
-           'shop': ShopSerializer(request.user.shop, context={'request': request}).data,
            'products': ProductSerializer(Product.objects.filter(shop=request.user.shop), many=True).data}
+
+    # Extend shop obj
+    res['user']['shop'] = ShopSerializer(request.user.shop, context={'request': request}).data
 
     # Purchase Orders...
     u_pos_serialized = PurchaseOrderSerializer(
@@ -39,8 +41,10 @@ def home(request: WSGIRequest):
     yearly_data = []
     for i in range(1, 13):
         yearly_data.append(sum([i[0] for i in
-                                PurchaseOrder.objects.filter(created_at__year=datetime.datetime.now().year,
-                                                             created_at__month=i).values_list('subtotal')]))
+                                PurchaseOrder.objects.filter(
+                                    shop=request.user.shop,
+                                    created_at__year=datetime.datetime.now().year,
+                                    created_at__month=i).values_list('subtotal')]))
 
     res['yearly_data'] = yearly_data
 
