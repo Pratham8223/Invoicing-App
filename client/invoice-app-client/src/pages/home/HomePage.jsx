@@ -1,22 +1,20 @@
-import { Flex, Input, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import React, { useContext } from 'react';
-import { poMonthYearContext } from '../../contexts/POMonthYearProvider';
 import ChartContainer from './ChartContainer';
 import { poDataContext } from '../../contexts/PODataProvider';
+import GlobalMonthInput from '../../components/global_month/GlobalMonthInput';
 
 export default function HomePage() {
 
-  const { poMonthYear, setPoMonthYear } = useContext(poMonthYearContext)
   const { poData } = useContext(poDataContext)
-  const mSubtotal = getSubTotal(poData)
-
+  
   return <>
     <Flex justifyContent='space-between' alignItems='center' mb='6' px='2'>
       <Flex flexDirection='column'>
         <Text color='grey' fontSize='sm'>Monthly Sale</Text>
-        <Text fontWeight='semibold' fontSize='3xl'>Rs. {mSubtotal} /-</Text>
+        <Text fontWeight='semibold' fontSize='3xl'>Rs. {getSubTotal(poData)} /-</Text>
       </Flex>
-      <Input type='month' mr='4' w='60' value={poMonthYear} onChange={e => { setPoMonthYear(e.target.value); }} variant='outline' />
+      <GlobalMonthInput />
     </Flex>
     <ChartContainer />
   </>;

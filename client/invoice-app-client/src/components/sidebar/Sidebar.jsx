@@ -78,27 +78,27 @@ const SidebarContent = ({ onClose, ...rest }) => {
     const LinkItems = [
         {
             name: 'Home', icon: FiHome, onClick: () => {
-                navigate('/home', { replace: false })
+                navigate('/home', { replace: true })
             }
         },
         {
             name: 'Inventory', icon: FiShoppingCart, onClick: () => {
-                navigate('/inventory', { replace: false })
+                navigate('/inventory', { replace: true })
             }
         },
         {
             name: 'Purchase Order', icon: FiRotateCcw, onClick: () => {
-                navigate('/purchase-order', { replace: false })
+                navigate('/purchase-order', { replace: true })
             }
         },
         {
             name: 'New Purchase', icon: FiPlus, onClick: () => {
-                navigate('/new-purchase', { replace: false })
+                navigate('/new-purchase', { replace: true })
             }
         },
         {
             name: 'Settings', icon: FiSettings, onClick: () => {
-                navigate('/settings', { replace: false })
+                navigate('/settings', { replace: true })
             }
         },
     ];
@@ -197,9 +197,9 @@ const MobileNav = ({ onOpen, ...rest }) => {
             <HStack spacing={{ base: '0', md: '6' }}>
                 <Flex alignItems={'center'}>
                     <Menu>
-                        <IconButton mr='4' 
-                        variant='outline'
-                        icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
+                        <IconButton mr='4'
+                            variant='outline'
+                            icon={colorMode === 'light' ? <FiMoon /> : <FiSun />} onClick={toggleColorMode} />
                         <MenuButton
                             py={2}
                             transition="all 0.3s"

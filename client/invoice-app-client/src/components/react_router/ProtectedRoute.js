@@ -19,8 +19,6 @@ export default function ProtectedRoute() {
     const { setProfile } = useContext(profileContext)
 
     const setUserDataToContext = (data) => {
-        console.log(data);
-
         const tmpPoData = {
             purchase_orders: data.purchase_orders,
             yearly_data: data.yearly_data

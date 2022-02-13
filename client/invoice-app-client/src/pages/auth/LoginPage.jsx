@@ -23,6 +23,7 @@ export default function LoginPage() {
     const toast = useToast()
     const [credentials, setCredentials] = useState({ email: '', password: '' });
     const { current } = useRef(loadingRef)
+    const [isDisabled, setIsDisabled] = useState(false)
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -34,10 +35,13 @@ export default function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         current.current.continuousStart()
+        setIsDisabled(true)
         await new AuthAction().signIn(credentials, (data) => {
+            setIsDisabled(false)
             setIsLoggedIn(true)
             navigate('/home', { replace: true })
         }, (err) => {
+            setIsDisabled(false)
             if (err === 'Incorrect password.') {
                 setCredentials({ ...credentials, password: '' })
             }
@@ -73,7 +77,7 @@ export default function LoginPage() {
                                 justify={'space-between'}>
                                 <Link color={'blue.500'}>Forgot password?</Link>
                             </Stack>
-                            <Button colorScheme={'blue'} variant={'solid'} type='submit'>
+                            <Button colorScheme={'blue'} variant={'solid'} type='submit' disabled={isDisabled}>
                                 Sign in
                             </Button>
                         </Stack>

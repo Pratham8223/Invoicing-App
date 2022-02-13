@@ -24,5 +24,5 @@ export default class BaseAction {
         } catch (error) {
             onError("Something went wrong.")
         }
-    }
+    } 
 }
