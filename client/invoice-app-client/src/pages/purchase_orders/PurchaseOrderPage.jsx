@@ -17,10 +17,10 @@ export default function PurchaseOrderPage() {
     <hr />
 
     <Grid templateColumns='repeat(5, 1fr)' gap={4} marginTop='4'>
-      <GridItem colSpan={3}>
+      <GridItem colSpan={2}>
         <POList poData={purchase_orders} />
       </GridItem>
-      <GridItem colSpan={2}>
+      <GridItem colSpan={3}>
         <PODetailComponent />
       </GridItem>
     </Grid>

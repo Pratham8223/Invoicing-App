@@ -32,7 +32,7 @@ export default function InventoryPage() {
       <InputRightAddon children={<FiSearch />} />
     </InputGroup>
     <hr />
-    <Table variant='striped' colorScheme='blue'>
+    <Table variant='striped' colorScheme='blue' overflowX='scroll'>
       <Thead>
         <Tr>
           <Th>Sr. No.</Th>
