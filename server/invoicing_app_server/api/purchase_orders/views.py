@@ -2,6 +2,7 @@ import json
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import FileResponse
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -20,7 +21,8 @@ from ..shop.serializers import ShopSerializer
 def purchase_orders(request: WSGIRequest):
     if request.method == 'GET':
         if 'month' in list(request.GET.keys()) and 'year' in list(request.GET.keys()):
-            u_pos = PurchaseOrder.objects.filter(shop=request.user.shop, created_at__year=int(request.GET['year']), created_at__month=int(request.GET['month']))
+            u_pos = PurchaseOrder.objects.filter(shop=request.user.shop, created_at__year=int(request.GET['year']),
+                                                 created_at__month=int(request.GET['month']))
         else:
             u_pos = PurchaseOrder.objects.filter(shop=request.user.shop)
 

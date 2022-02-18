@@ -1,8 +1,9 @@
 import React from 'react'
-import { HStack, Stack, StackDivider, Text, Spacer, Button, Flex } from '@chakra-ui/react'
+import { Badge, HStack, Stack, StackDivider, Text, Spacer, Button, Flex } from '@chakra-ui/react'
 import { FaFileInvoice } from 'react-icons/fa'
 
-export default function POList({ poData }) {
+
+export default function POList({ poData, setActivePOItemIndex }) {
     return (
         <Stack
             borderWidth='1.6px'
@@ -13,27 +14,35 @@ export default function POList({ poData }) {
             divider={<StackDivider />}
         >
             {
-                poData.map((ele, i) => <POListTile poInfo={ele} key={i} />)
+                poData.length === 0 ? <Badge textAlign='center' colorScheme="red" p="4" borderRadius="lg" >
+                    No Purchase Orders
+                </Badge> :
+                    poData.map((ele, i) => <POListTile onClick={
+                        () => {
+                            setActivePOItemIndex(i)
+                        }
+                    } poInfo={ele} key={i} />)
             }
         </Stack>
     )
 }
 
-const POListTile = ({ poInfo }) => {
+const POListTile = ({ poInfo, onClick }) => {
     const dt = new Date(Date.parse(poInfo.created_at))
 
     return <HStack
         _hover={{
-            backgroundColor:'blue'
+            color: 'skyblue'
         }}
-        p='2'
+        onClick={onClick}
     >
         <Flex flexDirection='column'>
             <Text>{poInfo.customer_name} (Rs. {poInfo.subtotal})</Text>
             <Text fontSize='smaller'>{dt.toLocaleDateString()}</Text>
-
         </Flex>
         <Spacer />
-        <Button color='blue.200'><FaFileInvoice /></Button>
+        <Button onClick={() => {
+            window.open(process.env.REACT_APP_BACKEND_URI + 'purchase-order/' + poInfo.id + '?res=invoice')
+        }} color='blue.200'><FaFileInvoice /></Button>
     </HStack>
 }
