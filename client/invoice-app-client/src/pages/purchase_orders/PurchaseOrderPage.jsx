@@ -3,8 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import GlobalMonthInput from '../../components/global_month/GlobalMonthInput';
 import { poDataContext } from '../../contexts/PODataProvider';
 import { poMonthYearContext } from '../../contexts/POMonthYearProvider';
-import PODetailComponent from './PODetailComponent';
-import POList from './POList';
 
 export default function PurchaseOrderPage() {
 
@@ -23,13 +21,6 @@ export default function PurchaseOrderPage() {
     </Flex>
     <hr />
 
-    <Grid templateColumns='repeat(5, 1fr)' gap={4} marginTop='4'>
-      <GridItem colSpan={2}>
-        <POList poData={purchase_orders} setActivePOItemIndex={setActivePOItemIndex} />
-      </GridItem>
-      <GridItem colSpan={3}>
-        <PODetailComponent poItem={activePoItemIndex === null ? null : purchase_orders[activePoItemIndex]} />
-      </GridItem>
-    </Grid>
+    
   </Container>;
 }

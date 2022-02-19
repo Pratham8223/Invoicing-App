@@ -54,7 +54,7 @@ export default function InventoryPage() {
     </Table>
     {
       searchString ? null :
-        superArray.length !== 0 ? <Flex bgColor='facebook.400' color='white' boxShadow='lg' marginX={{ md: '10', sm: '0', base: '0', lg: '80' }} borderColor='teal.400' borderRadius='xl' position='sticky' bottom='2' py='2' flexDirection='row' justifyContent='space-evenly' alignItems='center' marginY='6'>
+        superArray.length !== 0 ? <Flex bgColor='telegram.400' color='white' boxShadow='lg' marginX={{ md: '10', sm: '0', base: '0', lg: '80' }} borderColor='teal.400' borderRadius='xl' position='sticky' bottom='2' py='2' flexDirection='row' justifyContent='space-evenly' alignItems='center' marginY='6'>
           <Button bgColor='teal.100' onClick={() => { setPage(0) }} color='black' size='sm'>{"<<<"}</Button>
           <Text>Page <b>{page}</b>  of <b>{superArray.length - 1}</b>  </Text>
           Goto Page : <NumberInput

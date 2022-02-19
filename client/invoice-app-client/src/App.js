@@ -75,9 +75,7 @@ function App() {
                     } />
                   </Route>
 
-
                   <Route path='*' element={<NotFoundPage />} />
-
                 </Routes>
               </LoginContextProvider>
             </ProductDataProvider>
