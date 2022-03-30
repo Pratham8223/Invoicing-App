@@ -9,8 +9,9 @@ from django.http.response import JsonResponse
 
 from api.purchase_orders.models import PurchaseOrder, POItem
 from api.purchase_orders.serializers import PurchaseOrderSerializer, POItemSerializer
-from api.shop.models import Product
-from api.shop.serializers import ProductSerializer, ShopSerializer
+# from api.shop.models import Product
+# from api.shop.serializers import ProductSerializer
+from api.shop.serializers import ShopSerializer
 from api.users.serializers import CustomUserSerializer
 
 """
@@ -24,7 +25,8 @@ from api.users.serializers import CustomUserSerializer
 @permission_classes([IsAuthenticated])
 def home(request: WSGIRequest):
     res = {'user': CustomUserSerializer(request.user).data,
-           'products': ProductSerializer(Product.objects.filter(shop=request.user.shop), many=True).data}
+           # 'products': ProductSerializer(Product.objects.filter(shop=request.user.shop), many=True).data
+           }
 
     # Extend shop obj
     res['user']['shop'] = ShopSerializer(request.user.shop, context={'request': request}).data
@@ -32,7 +34,7 @@ def home(request: WSGIRequest):
     # Purchase Orders...
     u_pos_serialized = PurchaseOrderSerializer(
         PurchaseOrder.objects.filter(shop=request.user.shop, created_at__year=int(datetime.datetime.now().year),
-                                     created_at__month=int(datetime.datetime.now().month)), many=True).data
+                                     created_at__month=int(datetime.datetime.now().month)).order_by('-created_at'), many=True).data
     for i in u_pos_serialized:
         i['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order__id=i['id']), many=True).data
     res['purchase_orders'] = u_pos_serialized

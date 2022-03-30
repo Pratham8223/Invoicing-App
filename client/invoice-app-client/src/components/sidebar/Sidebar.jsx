@@ -27,7 +27,6 @@ import {
     FiSettings,
     FiMenu,
     FiChevronDown,
-    FiShoppingCart,
     FiRotateCcw,
     FiPlus,
     FiMoon,
@@ -81,11 +80,11 @@ const SidebarContent = ({ onClose, ...rest }) => {
                 navigate('/home', { replace: true })
             }
         },
-        {
-            name: 'Inventory', icon: FiShoppingCart, onClick: () => {
-                navigate('/inventory', { replace: true })
-            }
-        },
+        // {
+        //     name: 'Inventory', icon: FiShoppingCart, onClick: () => {
+        //         navigate('/inventory', { replace: true })
+        //     }
+        // },
         {
             name: 'Purchase Order', icon: FiRotateCcw, onClick: () => {
                 navigate('/purchase-order', { replace: true })
@@ -224,10 +223,10 @@ const MobileNav = ({ onOpen, ...rest }) => {
                         <MenuList
                             bg={useColorModeValue('white', 'gray.900')}
                             borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                            <MenuItem>Profile</MenuItem>
-                            <MenuItem>Billing</MenuItem>
+                            {/* <MenuItem>Profile</MenuItem> */}
+                            <MenuItem>Donate ♥</MenuItem>
                             <MenuItem>Notifications</MenuItem>
-                            <MenuItem>Settings</MenuItem>
+                            {/* <MenuItem>Settings</MenuItem> */}
                             <MenuDivider />
                             <MenuItem onClick={async () => {
                                 await new AuthAction().logout(() => {

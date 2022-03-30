@@ -1,7 +1,7 @@
 import json
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
@@ -18,11 +18,12 @@ from ..shop.serializers import ShopSerializer
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def purchase_orders(request: WSGIRequest):
     if request.method == 'GET':
         if 'month' in list(request.GET.keys()) and 'year' in list(request.GET.keys()):
             u_pos = PurchaseOrder.objects.filter(shop=request.user.shop, created_at__year=int(request.GET['year']),
-                                                 created_at__month=int(request.GET['month']))
+                                                 created_at__month=int(request.GET['month'])).order_by('-created_at')
         else:
             u_pos = PurchaseOrder.objects.filter(shop=request.user.shop)
 
@@ -33,7 +34,7 @@ def purchase_orders(request: WSGIRequest):
         return Response(u_pos_serialized)
 
     if request.method == 'POST':
-        po_details = json.loads(request.body)
+        po_details = request.data
 
         try:
             nw_po = PurchaseOrder(customer_name=po_details['customer_name'],
@@ -61,12 +62,12 @@ def purchase_orders(request: WSGIRequest):
                 for key, val in itm.items():
                     setattr(po_itm, key, val)
 
-                setattr(po_itm, 'amount', itm['cost'] * itm['quantity'])
+                setattr(po_itm, 'amount', float(itm['cost']) * float(itm['quantity']))
                 po_itm.purchase_order = nw_po
 
-                nw_po.subtotal += po_itm.amount
-                nw_po.discount += po_itm.discount
-                nw_po.tax += po_itm.tax
+                nw_po.subtotal += float(po_itm.amount)
+                nw_po.discount += float(po_itm.discount)
+                nw_po.tax += float(po_itm.tax)
 
                 nw_po.save()
                 po_itm.save()
@@ -80,9 +81,10 @@ def purchase_orders(request: WSGIRequest):
             return Response({'err': str(e)}, status=400)
 
 
-@api_view(['PUT', 'GET'])
+# @api_view(['delete', 'GET', 'PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def purchase_orders_id(request: WSGIRequest, id: int):
     if request.method == 'GET':
 
@@ -107,27 +109,37 @@ def purchase_orders_id(request: WSGIRequest, id: int):
 
         return Response(inv_details)
 
-    try:
-        edit_po = json.loads(request.body)
-
-        po = PurchaseOrder.objects.get(id=id)
-
-        if po.shop != request.user.shop:
-            return Response({'err': f'Cannot edit purchase order with id {id}'}, status=401)
-
+    if request.method == 'PUT':
         try:
-            po.customer_name = edit_po['customer_name']
-            po.save()
+            edit_po = json.loads(request.body)
 
-            u_pos_serialized = PurchaseOrderSerializer(po).data
-            u_pos_serialized['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order=po), many=True).data
-            return Response(u_pos_serialized)
+            po = PurchaseOrder.objects.get(id=id)
+
+            if po.shop != request.user.shop:
+                return Response({'err': f'Cannot edit purchase order with id {id}'}, status=401)
+
+            try:
+                po.customer_name = edit_po['customer_name']
+                po.save()
+
+                u_pos_serialized = PurchaseOrderSerializer(po).data
+                u_pos_serialized['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order=po),
+                                                                many=True).data
+                return Response(u_pos_serialized)
+
+            except Exception as e:
+                return Response({'err': str(e)}, status=400)
 
         except Exception as e:
             return Response({'err': str(e)}, status=400)
 
-    except Exception as e:
-        return Response({'err': str(e)}, status=400)
+    if request.method == 'DELETE':
+        try:
+            PurchaseOrder.objects.get(id=id, shop=request.user.shop).delete()
+            return JsonResponse({'msg': 'Successfully deleted invoice'}, status=200)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'err': str(e)}, status=400)
 
 
 @api_view(['PUT'])

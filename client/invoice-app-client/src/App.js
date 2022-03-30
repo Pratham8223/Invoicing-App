@@ -43,13 +43,13 @@ function App() {
                     } />
                   </Route>
 
-                  <Route path='/' element={<ProtectedRoute />}>
+                  {/* <Route path='/' element={<ProtectedRoute />}>
                     <Route path='/inventory' element={
                       <Sidebar>
                         <InventoryPage />
                       </Sidebar>
                     } />
-                  </Route>
+                  </Route> */}
 
                   <Route path='/' element={<ProtectedRoute />}>
                     <Route path='/purchase-order' element={

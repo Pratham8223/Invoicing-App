@@ -1,4 +1,4 @@
-import { Container, SimpleGrid } from '@chakra-ui/react';
+import { Container, SimpleGrid, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 import { poDataContext } from '../../contexts/PODataProvider';
 import { poMonthYearContext } from '../../contexts/POMonthYearProvider';
@@ -11,14 +11,28 @@ export default function ChartContainer() {
 
     const mSalesData = getSalesData(poData, poMonthYear)
 
-    return <SimpleGrid columns={{ base: 1, md: 1, sm: 1, lg: 2 }} gap={4} w={'100%'}>
-        <Container maxW='container.xl'>
-            <HomeChart kdata={Object.values(mSalesData)} klabels={Object.keys(mSalesData)} ktitle='Monthly' />
-        </Container>
-        <Container maxW='container.xl'>
-            <HomeChart kdata={poData.yearly_data} klabels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']} ktitle='Yearly' />
-        </Container>
-    </SimpleGrid>
+    return <>
+        <Tabs colorScheme='blue' variant='solid-rounded'>
+            <TabList alignItems='center' alignSelf='center'>
+                <Tab>Monthly</Tab>
+                <Tab marginX={6}>
+                    Yearly
+                </Tab>
+            </TabList>
+            <TabPanels marginY={50}>
+                <TabPanel>
+                    <Container maxW='container.xl'>
+                        <HomeChart kdata={Object.values(mSalesData)} klabels={Object.keys(mSalesData)} ktitle='Monthly' />
+                    </Container>
+                </TabPanel>
+                <TabPanel>
+                    <Container maxW='container.xl'>
+                        <HomeChart kdata={poData.yearly_data} klabels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']} ktitle='Yearly' />
+                    </Container>
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
+    </>
 }
 
 

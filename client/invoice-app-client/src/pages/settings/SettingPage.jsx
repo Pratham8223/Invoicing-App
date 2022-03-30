@@ -1,5 +1,8 @@
+import { Container } from '@chakra-ui/react';
 import React from 'react';
 
 export default function SettingPage() {
-  return <div>Settings Page</div>;
+  return <Container maxW='container.3xl'>
+
+  </Container>
 }

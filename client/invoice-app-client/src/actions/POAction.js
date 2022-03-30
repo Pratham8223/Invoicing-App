@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 export default class POAction {
 
     constructor() {
@@ -23,6 +24,48 @@ export default class POAction {
                 onError((await res.json()).err);
             }
         } catch (error) {
+            onError("Something went wrong.")
+        }
+    }
+
+    async deleteInvoice(id, onSuccess, onError) {
+        try {
+            const res = await fetch(`${this.BASE_URL}purchase-order/${id}/`, {
+                method: "DELETE",
+                credentials: 'include',
+            })
+            if (res.status === 200) {
+                onSuccess()
+            } else {
+                onError("Unable to delete invoice")
+            }
+        } catch (error) {
+            console.log(error)
+            onError("Unable to delete invoice");
+        }
+    }
+
+    async postInvoice(body, onSuccess, onError) {
+        console.log(document.cookie)
+        try {
+            const res = await fetch(`${this.BASE_URL}purchase-order/`, {
+                method: "POST",
+                body: JSON.stringify(body),
+                headers: {
+                    'X-CSRFToken': Cookies.get('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            })
+
+            if (res.status === 200) {
+                onSuccess((await res.json()))
+            } else {
+                onError("Something went wrong.")
+            }
+
+        } catch (error) {
+            console.log(error)
             onError("Something went wrong.")
         }
     }

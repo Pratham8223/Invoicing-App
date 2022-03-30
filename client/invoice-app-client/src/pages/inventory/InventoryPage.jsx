@@ -3,6 +3,7 @@ import { Container, Input, InputGroup, InputRightAddon, NumberInput, NumberInput
 import React, { useContext, useEffect, useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { productDataContext } from '../../contexts/ProductDataProvider';
+import { splitIntoSubArray } from '../../utils/PagignationHelper';
 import PagedProductsComponent, { InvProduct } from './PagedProductsComponent';
 
 export default function InventoryPage() {
@@ -85,13 +86,4 @@ export default function InventoryPage() {
           <Button color='black' onClick={() => { setPage(superArray.length - 1) }} bgColor='teal.100' size='sm'>{">>>"}</Button>
         </Flex> : null}
   </Container>
-}
-
-const splitIntoSubArray = (arr, chunkSize) => {
-  const res = [];
-  for (let i = 0; i < arr.length; i += chunkSize) {
-    const chunk = arr.slice(i, i + chunkSize);
-    res.push(chunk);
-  }
-  return res;
 }

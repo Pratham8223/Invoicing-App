@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.contrib.auth import login, logout
 from django.core.handlers.wsgi import WSGIRequest
@@ -46,7 +47,6 @@ def api_login(request: WSGIRequest):
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def api_logout(request: WSGIRequest):
-
     if 'Authorization' in list(request.headers.keys()):
         tkn = request.headers['Authorization'].split(' ')[-1]
 
@@ -62,3 +62,12 @@ def api_logout(request: WSGIRequest):
     else:
         logout(request)
         return Response({'message': 'Logged out successfully.'})
+
+
+@csrf_exempt
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def verify_user(request: WSGIRequest):
+    
+    return Response({})
