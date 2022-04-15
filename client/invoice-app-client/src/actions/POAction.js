@@ -46,7 +46,6 @@ export default class POAction {
     }
 
     async postInvoice(body, onSuccess, onError) {
-        console.log(document.cookie)
         try {
             const res = await fetch(`${this.BASE_URL}purchase-order/`, {
                 method: "POST",

@@ -15,7 +15,7 @@ export default function ChartContainer() {
         <Tabs colorScheme='blue' variant='solid-rounded'>
             <TabList alignItems='center' alignSelf='center'>
                 <Tab>Monthly</Tab>
-                <Tab marginX={6}>
+                <Tab marginX={4}>
                     Yearly
                 </Tab>
             </TabList>

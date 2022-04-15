@@ -22,7 +22,7 @@ export default function InventoryPage() {
       })
     );
   }, [searchString])
-  
+
   const superArray = splitIntoSubArray(visiblePoductData, chunkSize)
 
   return <Container maxW='container.2xl'>

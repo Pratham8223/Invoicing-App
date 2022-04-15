@@ -2,7 +2,7 @@ import { Container, Text, Flex, Table, Thead, Tr, Th, Tbody, Td, Button, Input, 
 import React, { useContext, useEffect, useState } from 'react';
 import GlobalMonthInput from '../../components/global_month/GlobalMonthInput';
 import { poDataContext } from '../../contexts/PODataProvider';
-import { FiSearch, FiX } from 'react-icons/fi'
+import { FiSearch, FiX, FiFile } from 'react-icons/fi'
 import POAction from '../../actions/POAction';
 
 export default function PurchaseOrderPage() {
@@ -23,6 +23,9 @@ export default function PurchaseOrderPage() {
       purchase_orders.filter(val => JSON.stringify(val).toLowerCase().includes(searchString.toLowerCase()))
     );
   }, [searchString, purchase_orders])
+
+
+  console.log(purchase_orders)
 
   return <>
     <Container maxW='container.2xl' overflowX='scroll'>
@@ -46,7 +49,6 @@ export default function PurchaseOrderPage() {
             <Th>Cust. Phone</Th>
             <Th>Subtotal</Th>
             <Th>Discount</Th>
-            <Th>Tax</Th>
             <Th>Items</Th>
             <Th>Date</Th>
             <Th></Th>
@@ -67,13 +69,10 @@ export default function PurchaseOrderPage() {
               {val.customer_phone}
             </Td>
             <Td>
-              Rs. {val.subtotal}
+              Rs. {val.subtotal}/-
             </Td>
             <Td>
               {val.discount}%
-            </Td>
-            <Td>
-              {val.tax}%
             </Td>
             <Td>
               {val.po_items.length} Items
@@ -82,9 +81,9 @@ export default function PurchaseOrderPage() {
               {new Date(Date.parse(val.created_at.split(":")[0].split("T")[0])).toLocaleDateString()}
             </Td>
             <Td>
-              <Button size='sm' bgColor='blue.200' onClick={() => {
+              <IconButton icon={<FiFile />} size='sm' bgColor='blue.200' onClick={() => {
                 window.open(`${process.env.REACT_APP_BACKEND_URI}purchase-order/${val.id}/?res=invoice`)
-              }}>Invoice</Button>
+              }}>Invoice</IconButton>
               <IconButton icon={<FiX />} onClick={() => {
                 setDelInvoiceId(val.id)
                 onOpen()
