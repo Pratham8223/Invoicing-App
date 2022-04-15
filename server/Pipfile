@@ -10,6 +10,7 @@ django-cors-headers = "*"
 python-dotenv = "*"
 pillow = "*"
 fpdf = "*"
+sendgrid = "*"
 
 [dev-packages]
 

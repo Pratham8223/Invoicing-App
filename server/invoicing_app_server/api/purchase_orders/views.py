@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -39,23 +40,35 @@ def purchase_orders(request: WSGIRequest):
         try:
             nw_po = PurchaseOrder(customer_name=po_details['customer_name'],
                                   customer_email=po_details['customer_email'],
-                                  customer_phone=po_details['customer_phone'], shop=request.user.shop)
-            nw_po.invoice_no = PurchaseOrder.objects.filter(shop=request.user.shop).count() + 1
+                                  customer_phone=po_details['customer_phone'],
+                                  customer_address=po_details['customer_address'],
+                                  discount=float(po_details['discount']),
+                                  pending_amount=float(po_details['pending_amount']),
+                                  shop=request.user.shop)
+
+            if int(po_details['pending_amount']) > 0:
+                nw_po.due_date = datetime.datetime.strptime(po_details['due_date'], "%Y-%m-%d").date()
+
+            inv_count = PurchaseOrder.objects.filter(shop=request.user.shop).count()
+            if inv_count > 0:
+                nw_po.invoice_no = PurchaseOrder.objects.filter(shop=request.user.shop)[inv_count - 1].invoice_no + 1
+            else:
+                nw_po.invoice_no = 1
 
             for itm in po_details['po_items']:
 
                 po_itm = POItem()
 
-                if itm['product'] is not None:
-                    temp_p = Product.objects.get(id=itm['product'])
-
-                    if temp_p.shop == request.user.shop:
-                        po_itm.product = temp_p
-                        temp_p.available_stock -= itm['quantity']
-
-                    else:
-                        nw_po.delete()
-                        return Response({'err': f'Unauthorized product of id {itm["product"]}'}, status=401)
+                # if itm['product'] is not None:
+                #   Todo: Enable this feature when inventory is pushed in production
+                #   temp_p = Product.objects.get(id=itm['product'])
+                #   if temp_p.shop == request.user.shop:
+                #       po_itm.product = temp_p
+                #       temp_p.available_stock -= itm['quantity']
+                #
+                #   else:
+                #       nw_po.delete()
+                #       return Response({'err': f'Unauthorized product of id {itm["product"]}'}, status=401)
 
                 itm.pop('product')
 
@@ -66,8 +79,10 @@ def purchase_orders(request: WSGIRequest):
                 po_itm.purchase_order = nw_po
 
                 nw_po.subtotal += float(po_itm.amount)
-                nw_po.discount += float(po_itm.discount)
-                nw_po.tax += float(po_itm.tax)
+                try:
+                    nw_po.discount = float(po_details['discount'])
+                except:
+                    nw_po.discount = 0
 
                 nw_po.save()
                 po_itm.save()
@@ -78,6 +93,7 @@ def purchase_orders(request: WSGIRequest):
             return Response(u_pos_serialized)
 
         except Exception as e:
+            print(e)
             return Response({'err': str(e)}, status=400)
 
 

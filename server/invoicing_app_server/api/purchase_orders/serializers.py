@@ -15,7 +15,7 @@ class POItemSerializer(ModelSerializer):
             'id',
             'product_name',
             'cost',
-            'discount',
+            'serial_no',
             'tax',
             'quantity',
             'amount',

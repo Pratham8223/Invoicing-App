@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from .models import CustomUser
 from django.views.decorators.csrf import csrf_exempt
 from .serializers import CustomUserSerializer
+from ..shop.serializers import ShopSerializer
 
 
 @csrf_exempt
@@ -59,10 +60,12 @@ def user(request):
 
 
 @csrf_exempt
-@api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def user_id(request: WSGIRequest, id: int):
+    if request.method != 'PUT':
+        return JsonResponse({'err': 'Invalid method'}, status=403)
+
     edit_data = json.loads(request.body)
 
     # Validations
@@ -80,13 +83,25 @@ def user_id(request: WSGIRequest, id: int):
     # Validate and save user.
     try:
         usr = CustomUser.objects.get(id=id)
-        usr.first_name = edit_data['first_name']
-        usr.last_name = edit_data['last_name']
+        for k, val in edit_data.items():
+            if k == 'first_name':
+                usr.first_name = val
+            elif k == 'last_name':
+                usr.last_name = val
+            elif k == 'phone':
+                if not val.isnumeric():
+                    return JsonResponse({'err': 'Should not contain chars.'}, status=400)
+                usr.last_name = val
+            elif k == 'email':
+                return JsonResponse({'err': 'Cannot edit email once set.'}, status=400)
+
         usr.save()
+        res = CustomUserSerializer(usr).data
+        res['shop'] = ShopSerializer(request.user.shop, context={'request': request}).data
+
+        return JsonResponse(res)
     except Exception as e:
         return JsonResponse({'err': str(e)}, status=400)
-
-    return JsonResponse(CustomUserSerializer(usr).data)
 
 
 @csrf_exempt

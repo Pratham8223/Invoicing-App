@@ -15,6 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from api.users.models import CustomUser
 
+from ..mail_helper.mail_helper import send_email
+
 
 @csrf_exempt
 def api_login(request: WSGIRequest):
@@ -69,5 +71,7 @@ def api_logout(request: WSGIRequest):
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def verify_user(request: WSGIRequest):
-    
-    return Response({})
+    if send_email(to_email='suyash.lawand@gmail.com', subject="Test", content='53540') == "OK":
+        return Response({})
+    else:
+        return Response({'err': 'err'})

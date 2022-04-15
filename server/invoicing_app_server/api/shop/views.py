@@ -2,6 +2,7 @@ import json
 import re
 
 from django.core.handlers.wsgi import WSGIRequest
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
 from rest_framework.decorators import authentication_classes, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -63,11 +64,12 @@ def shop(request: WSGIRequest):
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
+@csrf_exempt
 def shop_id(request: WSGIRequest, id: int):
-    # NOTE : User formdata at frontend
+    print(request.POST)
+    # NOTE : User form-data at frontend
     try:
-        for key, val in request.POST.items():
-            setattr(request.user.shop, key, val)
+        for key, val in request.data.items():
 
             if key == 'name':
                 if not bool(re.match('[a-zA-Z\s]+$', val)):
