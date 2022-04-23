@@ -60,7 +60,7 @@ export default class POAction {
             if (res.status === 200) {
                 onSuccess((await res.json()))
             } else {
-                onError("Something went wrong.")
+                onError((await res.json()))
             }
 
         } catch (error) {

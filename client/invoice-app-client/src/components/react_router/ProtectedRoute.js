@@ -16,7 +16,7 @@ export default function ProtectedRoute() {
     // User Data Contexts
     const { setPoData } = useContext(poDataContext)
     const { setProductData } = useContext(productDataContext)
-    const { setProfile } = useContext(profileContext)
+    const { setProfile, profile } = useContext(profileContext)
 
     const setUserDataToContext = (data) => {
         const tmpPoData = {
@@ -52,6 +52,6 @@ export default function ProtectedRoute() {
             <Spinner size='lg' />
         </Center>
     } else {
-        return isLoggedIn ? <Outlet /> : <Navigate to='/login' />;
+        return isLoggedIn ? !profile.shop ? <Navigate to='/create-shop' /> : <Outlet /> : <Navigate to='/login' />;
     }
 }

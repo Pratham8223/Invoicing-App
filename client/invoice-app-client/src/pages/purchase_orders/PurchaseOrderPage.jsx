@@ -1,9 +1,10 @@
-import { Container, Text, Flex, Table, Thead, Tr, Th, Tbody, Td, Button, Input, InputGroup, InputRightAddon, IconButton, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useDisclosure, useToast } from '@chakra-ui/react';
+import { Container, Text, Flex, Table, Thead, Tr, Th, Tbody, Td, Button, Input, InputGroup, InputRightAddon, IconButton, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, useDisclosure, useToast, HStack } from '@chakra-ui/react';
 import React, { useContext, useEffect, useState } from 'react';
 import GlobalMonthInput from '../../components/global_month/GlobalMonthInput';
 import { poDataContext } from '../../contexts/PODataProvider';
 import { FiSearch, FiX, FiFile } from 'react-icons/fi'
 import POAction from '../../actions/POAction';
+import RefreshButton from './RefreshButton';
 
 export default function PurchaseOrderPage() {
 
@@ -32,13 +33,15 @@ export default function PurchaseOrderPage() {
       <Flex justifyContent='space-between' alignItems='center'>
         <Text fontWeight='semibold' marginY={2} fontSize='3xl'>Purchase Orders</Text>
         <GlobalMonthInput />
-
       </Flex>
       <hr />
-      <InputGroup marginY='4' variant='outline'>
-        <Input width='24rem' variant='outline' backgroundColor='whiteAlpha.100' value={searchString} onChange={e => { setSearchString(e.target.value) }} placeholder='Search by Name, Phone, Date' />
-        <InputRightAddon children={<FiSearch />} />
-      </InputGroup>
+      <HStack alignItems='center'>
+        <InputGroup marginY='4' variant='outline'>
+          <Input width='24rem' variant='outline' backgroundColor='whiteAlpha.100' value={searchString} onChange={e => { setSearchString(e.target.value) }} placeholder='Search by Name, Phone, Date' />
+          <InputRightAddon children={<FiSearch />} />
+        </InputGroup>
+        <RefreshButton />
+      </HStack>
       <hr />
       <Table variant='striped' overflowX='scroll' colorScheme='blue'>
         <Thead>
@@ -51,6 +54,7 @@ export default function PurchaseOrderPage() {
             <Th>Discount</Th>
             <Th>Items</Th>
             <Th>Date</Th>
+            <Th>Due Date</Th>
             <Th></Th>
           </Tr>
         </Thead>
@@ -79,6 +83,9 @@ export default function PurchaseOrderPage() {
             </Td>
             <Td>
               {new Date(Date.parse(val.created_at.split(":")[0].split("T")[0])).toLocaleDateString()}
+            </Td>
+            <Td>
+              {val.due_date ? new Date(Date.parse(val.due_date.split(":")[0].split("T")[0])).toLocaleDateString() : "-"}
             </Td>
             <Td>
               <IconButton icon={<FiFile />} size='sm' bgColor='blue.200' onClick={() => {

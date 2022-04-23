@@ -12,10 +12,12 @@ import {
     Stack,
     Image,
     useToast,
+    Text,
 } from '@chakra-ui/react';
 import LoginImage from '../../assets/images/login_image.jpg'
 import AuthAction from '../../actions/AuthAction';
 import { loadingRef } from '../../refs/LoadingRef';
+import { Link as Lnk } from "react-router-dom";
 
 export default function LoginPage() {
     const navigate = useNavigate()
@@ -82,7 +84,10 @@ export default function LoginPage() {
                             </Button>
                         </Stack>
                     </form>
+                    <br />
+                    <Text>Don't have an account? <Lnk to="/create-account"> <u>Create one!</u></Lnk>🤠</Text>
                 </Stack>
+
             </Flex>
             <Flex flex={1}>
                 <Image

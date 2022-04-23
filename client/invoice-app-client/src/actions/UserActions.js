@@ -35,4 +35,30 @@ export default class UserAction {
             onError("Something went wrong.")
         }
     }
+
+    async createUser(userDetails, onSuccess, onError) {
+        try {
+            const res = await fetch(`${this.BASE_URL}user/`, {
+                method: 'POST',
+                body: JSON.stringify(userDetails),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+
+            if (res.status === 200) {
+                onSuccess((await res.json()));
+            }
+
+            if (res.status > 399 && res.status < 499) {
+                onError((await res.json()).err);
+            }
+
+            if (res.status > 499) {
+                onError((await res.json()).err);
+            }
+        } catch (error) {
+            onError("Something went wrong.");
+        }
+    }
 }

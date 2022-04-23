@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from invoice_helper.invoice_helper import Invoice
 from .models import PurchaseOrder, POItem
 from .serializers import PurchaseOrderSerializer, POItemSerializer
+from ..mail_helper.mail_helper import send_email_with_invoice
 from ..shop.models import Product
 from ..shop.serializers import ShopSerializer
 
@@ -35,7 +36,13 @@ def purchase_orders(request: WSGIRequest):
         return Response(u_pos_serialized)
 
     if request.method == 'POST':
+
+        if not request.user.is_email_verified:
+            return JsonResponse({'err': 'Email not verified!. Please verify it in settings session.'}, status=400)
+
         po_details = request.data
+
+        print(po_details['due_date'])
 
         try:
             nw_po = PurchaseOrder(customer_name=po_details['customer_name'],
@@ -47,7 +54,7 @@ def purchase_orders(request: WSGIRequest):
                                   shop=request.user.shop)
 
             if int(po_details['pending_amount']) > 0:
-                nw_po.due_date = datetime.datetime.strptime(po_details['due_date'], "%Y-%m-%d").date()
+                nw_po.due_date = datetime.datetime.strptime(po_details['due_date'], '%Y-%m-%d').date()
 
             inv_count = PurchaseOrder.objects.filter(shop=request.user.shop).count()
             if inv_count > 0:
@@ -87,8 +94,30 @@ def purchase_orders(request: WSGIRequest):
                 nw_po.save()
                 po_itm.save()
 
+            if int(po_details['pending_amount']) > nw_po.subtotal:
+                return Response({'err': 'Pending amount cannot be greater than subtotal.'}, status=400)
+
             u_pos_serialized = PurchaseOrderSerializer(nw_po).data
             u_pos_serialized['po_items'] = POItemSerializer(POItem.objects.filter(purchase_order=nw_po), many=True).data
+
+            if po_details['send_to_customer']:
+                inv_details = u_pos_serialized
+                po_itm = []
+                for itm in POItemSerializer(POItem.objects.filter(purchase_order__id=nw_po.id), many=True).data:
+                    po_itm.append(dict(itm))
+
+                inv_details['po_items'] = po_itm
+                inv_details['shop'] = ShopSerializer(request.user.shop).data
+                Invoice(u_pos_serialized).get_output(str(nw_po.id))
+                a = send_email_with_invoice(to_email=po_details['customer_email'], subject="Your Invoice",
+                                            content="Here is your invoice from {}".format(request.user.shop.name),
+                                            invoice_id=str(nw_po.id))
+                if a < 300:
+                    u_pos_serialized['email_status'] = True
+                else:
+                    u_pos_serialized['email_status'] = False
+            else:
+                u_pos_serialized['email_status'] = None
 
             return Response(u_pos_serialized)
 

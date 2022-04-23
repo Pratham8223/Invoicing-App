@@ -13,6 +13,7 @@ import {
     FormLabel,
     FormControl,
     Text,
+    useColorMode,
 } from '@chakra-ui/react'
 
 export default function AddPoDrawer({ isOpen, onClose, btnRef, setInvoiceDetails }) {
@@ -27,6 +28,8 @@ export default function AddPoDrawer({ isOpen, onClose, btnRef, setInvoiceDetails
     };
     const [tempPo, setTempPo] = useState(initialState)
     const toast = useToast();
+    const { colorMode } = useColorMode()
+
 
 
     const addPoToTable = () => {
@@ -59,19 +62,19 @@ export default function AddPoDrawer({ isOpen, onClose, btnRef, setInvoiceDetails
                         <br />
                         <FormControl>
                             <FormLabel htmlFor='product_name'>Product Name</FormLabel>
-                            <Input mb={2} onChange={(e) => { setTempPo({ ...tempPo, product_name: e.target.value }) }} value={tempPo.product_name} id='product_name' type='text' required />
-
+                            <Input variant='outline' backgroundColor={colorMode === 'light' ? 'blue.100' : 'whiteAlpha.300'} mb={2} onChange={(e) => { setTempPo({ ...tempPo, product_name: e.target.value }) }} value={tempPo.product_name} id='product_name' type='text' required />
+        
                             <FormLabel htmlFor='serial_no'>Serial No.</FormLabel>
-                            <Input mb={4} id='serial_no' type='text' onChange={(e) => { setTempPo({ ...tempPo, serial_no: e.target.value }) }} value={tempPo.serial_no} required />
+                            <Input variant='outline' backgroundColor={colorMode === 'light' ? 'blue.100' : 'whiteAlpha.300'} mb={4} id='serial_no' type='text' onChange={(e) => { setTempPo({ ...tempPo, serial_no: e.target.value }) }} value={tempPo.serial_no} required />
 
                             <FormLabel htmlFor='cost'>Cost</FormLabel>
-                            <Input min={0} mb={2} id='cost' type='number' onChange={(e) => { setTempPo({ ...tempPo, cost: e.target.value }) }} value={tempPo.cost} required />
+                            <Input variant='outline' backgroundColor={colorMode === 'light' ? 'blue.100' : 'whiteAlpha.300'} min={0} mb={2} id='cost' type='number' onChange={(e) => { setTempPo({ ...tempPo, cost: e.target.value }) }} value={tempPo.cost} required />
 
                             <FormLabel htmlFor='quantity'>Quantity</FormLabel>
-                            <Input min={0} mb={4} id='quantity' type='text' onChange={(e) => { setTempPo({ ...tempPo, quantity: e.target.value }) }} value={tempPo.quantity} required />
+                            <Input variant='outline' backgroundColor={colorMode === 'light' ? 'blue.100' : 'whiteAlpha.300'} min={0} mb={4} id='quantity' type='text' onChange={(e) => { setTempPo({ ...tempPo, quantity: e.target.value }) }} value={tempPo.quantity} required />
 
                             <FormLabel htmlFor='tax'>Tax (In %)</FormLabel>
-                            <Input min={0} mb={4} id='tax' type='text' onChange={(e) => { setTempPo({ ...tempPo, tax: e.target.value }) }} value={tempPo.tax} required />
+                            <Input variant='outline' backgroundColor={colorMode === 'light' ? 'blue.100' : 'whiteAlpha.300'} min={0} mb={4} id='tax' type='text' onChange={(e) => { setTempPo({ ...tempPo, tax: e.target.value }) }} value={tempPo.tax} required />
 
                             <Text textAlign='end' mt={2}>Rs. {tempPo.cost * tempPo.quantity ? tempPo.cost * tempPo.quantity : "0.00"} /-</Text>
                         </FormControl>

@@ -33,7 +33,7 @@ def user(request):
             return JsonResponse({'err': 'Invalid phone'}, status=401)
 
         if not re.fullmatch(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", nu_data['email']):
-            return JsonResponse({'err': 'Invalid email'}, status=401)
+            return JsonResponse({'err': 'Invalid email. Phone no should include country code as well. (e.g. +91)'}, status=401)
 
         if len(nu_data['password']) < 6:
             return JsonResponse({'err': 'invalid password. Expected (< 6)'}, status=401)

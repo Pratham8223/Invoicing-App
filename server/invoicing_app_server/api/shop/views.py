@@ -30,7 +30,7 @@ def shop(request: WSGIRequest):
         # Validations
         try:
             if request.user.shop is not None:
-                return Response({'err': "shop already exists"}, status=400)
+                return Response({'err': "Shop already exists, try editing shop else."}, status=400)
 
             if not bool(re.match('[a-zA-Z\s]+$', nw_shop['name'])):
                 return Response({'err': 'name of shop cannot have special characters.'}, status=400)
@@ -64,21 +64,23 @@ def shop(request: WSGIRequest):
 @api_view(['PUT'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
-@csrf_exempt
 def shop_id(request: WSGIRequest, id: int):
-    print(request.POST)
     # NOTE : User form-data at frontend
+
+    if id != request.user.shop.id:
+        return Response({'err': 'Invalid shop id.'}, status=400)
+
     try:
         for key, val in request.data.items():
 
             if key == 'name':
                 if not bool(re.match('[a-zA-Z\s]+$', val)):
-                    return Response({'err': 'name of shop cannot have special characters.'}, status=400)
+                    return Response({'err': 'Name of shop cannot have special characters.'}, status=400)
             setattr(request.user.shop, key, val)
 
             if key == 'address':
                 if len(val) < 10:
-                    return Response({'err': 'must be bigger than 10 chars'})
+                    return Response({'err': 'Must be bigger than 10 chars.'}, status=400)
             setattr(request.user.shop, key, val)
 
         try:

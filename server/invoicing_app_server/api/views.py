@@ -29,7 +29,7 @@ def home(request: WSGIRequest):
            }
 
     # Extend shop obj
-    res['user']['shop'] = ShopSerializer(request.user.shop, context={'request': request}).data
+    res['user']['shop'] = None if request.user.shop is None else ShopSerializer(request.user.shop, context={'request': request}).data
 
     # Purchase Orders...
     u_pos_serialized = PurchaseOrderSerializer(

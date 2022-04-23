@@ -1,9 +1,11 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, Container, HStack, IconButton, Input, Spacer, StackDivider, Text, toast, useDisclosure, useToast, VStack } from '@chakra-ui/react';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { FiEdit } from 'react-icons/fi'
+import AuthAction from '../../actions/AuthAction';
 import ShopAction from '../../actions/ShopAction';
 import UserAction from '../../actions/UserActions';
 import { profileContext } from '../../contexts/ProfileContextProvider';
+import { loadingRef } from '../../refs/LoadingRef';
 
 export default function SettingPage() {
 
@@ -33,6 +35,7 @@ const ProfileDetailsBox = ({ profile, setProfile }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = React.useRef()
   const toast = useToast()
+  const { current } = useRef(loadingRef)
 
   const profileEntities = [
     {
@@ -53,17 +56,39 @@ const ProfileDetailsBox = ({ profile, setProfile }) => {
     },
   ]
 
+  const [isLoading, setIsLoading] = useState(false)
+
+  const verifyAccount = async () => {
+    setIsLoading(true)
+    await new AuthAction().sendVerificationLink((data) => {
+      toast({
+        title: 'Successfully Sent link!',
+        description: data.message,
+        status: 'success',
+      })
+    }, (error) => {
+      toast({
+        title: 'Error',
+        description: "Unable to send verification link!",
+        status: 'error',
+      })
+    })
+    setIsLoading(false)
+  }
+
   const performEditAtBackend = async () => {
     let editChunk = {}
     editChunk[editEntity.jsonEntity] = editEntity.newValue;
+
+    current.current.continuousStart()
     await new UserAction().editUser(profile.id, editChunk, (e) => {
-      console.log(e)
       toast({
         title: 'Done',
         description: 'Successfully edited ' + editEntity.displayEntity,
         status: 'success',
         isClosable: true
       })
+      onClose()
       setProfile(e)
     }, (err) => {
       toast({
@@ -73,14 +98,14 @@ const ProfileDetailsBox = ({ profile, setProfile }) => {
         isClosable: true
       })
     })
+    current.current.complete()
   }
 
   return <>
     <AlertDialog
       isOpen={isOpen}
       leastDestructiveRef={cancelRef}
-      onClose={onClose}
-    >
+      onClose={onClose}>
       <AlertDialogOverlay>
         <AlertDialogContent>
           <AlertDialogHeader fontSize='lg' fontWeight='bold'>
@@ -138,6 +163,16 @@ const ProfileDetailsBox = ({ profile, setProfile }) => {
           <Spacer />
           <Button backgroundColor='telegram.500' size='sm'>Reset Password</Button>
         </HStack>
+        {
+          profile.is_email_verified ? null : <HStack>
+            <Box>
+              <small>Verification Status</small>
+              <Text color='red.400' fontWeight='semibold'>Account Not Verified!</Text>
+            </Box>
+            <Spacer />
+            <Button backgroundColor='telegram.500' isDisabled={isLoading} onClick={verifyAccount} size='sm'>Send Verification Link</Button>
+          </HStack>
+        }
       </VStack>
     </Box>
   </>
@@ -148,6 +183,8 @@ const ShopDetailsBox = ({ profile, setProfile }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = React.useRef()
   const toast = useToast()
+  const { current } = useRef(loadingRef)
+
 
   const [editEntity, setEditEntity] = useState({
     displayEntity: '',
@@ -191,8 +228,11 @@ const ShopDetailsBox = ({ profile, setProfile }) => {
   const performEditAtBackend = async () => {
     let editChunk = {}
     editChunk[editEntity.jsonEntity] = editEntity.newValue;
+
+    current.current.continuousStart()
     await new ShopAction().editShop(profile.shop.id, editChunk, (data) => {
       setProfile({ ...profile, shop: data })
+      onClose()
       toast({
         title: 'Done',
         description: 'Successfully edited ' + editEntity.displayEntity,
@@ -207,6 +247,7 @@ const ShopDetailsBox = ({ profile, setProfile }) => {
         isClosable: true
       })
     })
+    current.current.complete()
   }
 
   return <>

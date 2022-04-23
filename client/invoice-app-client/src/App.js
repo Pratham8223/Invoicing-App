@@ -10,13 +10,15 @@ import { loadingRef } from './refs/LoadingRef';
 import SettingPage from './pages/settings/SettingPage';
 import NewPOPage from './pages/new_po/NewPOPage';
 import PurchaseOrderPage from './pages/purchase_orders/PurchaseOrderPage';
-import InventoryPage from './pages/inventory/InventoryPage';
+// import InventoryPage from './pages/inventory/InventoryPage';
 import NotFoundPage from './pages/error/NotFoundPage';
 import POMonthYearProvider from './contexts/POMonthYearProvider';
 import ProfileContextProvider from './contexts/ProfileContextProvider';
 import PODataProvider from './contexts/PODataProvider';
 import ProductDataProvider from './contexts/ProductDataProvider';
 import BaseRedirectPage from './pages/home/BaseRedirectPage';
+import SignUpPage from './pages/auth/SignUpPage';
+import CreateShopPage from './pages/auth/CreateShopPage';
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
 
                 <Routes>
                   <Route path='/login' element={<LoginPage />} />
+                  <Route path='/create-account' element={<SignUpPage />} />
+                  <Route path='/create-shop' element={<CreateShopPage />} />
 
                   <Route path='/' element={<ProtectedRoute />} >
                     <Route path='/' element={<BaseRedirectPage />} />

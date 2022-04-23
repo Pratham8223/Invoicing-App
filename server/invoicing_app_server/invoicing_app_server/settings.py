@@ -53,9 +53,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'api',
+    'api.kauth',
     'api.users',
     'api.purchase_orders',
-    'api.shop'
+    'api.shop',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

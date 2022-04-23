@@ -1,4 +1,4 @@
-import { Flex, Text } from '@chakra-ui/react';
+import { Badge, Flex, Text } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 import ChartContainer from './ChartContainer';
 import { poDataContext } from '../../contexts/PODataProvider';
@@ -7,7 +7,8 @@ import GlobalMonthInput from '../../components/global_month/GlobalMonthInput';
 export default function HomePage() {
 
   const { poData } = useContext(poDataContext)
-  
+
+
   return <>
     <Flex justifyContent='space-between' alignItems='center' mb='6' px='2'>
       <Flex flexDirection='column'>

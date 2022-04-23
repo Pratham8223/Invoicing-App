@@ -1,0 +1,5 @@
+django~=4.0.3
+djangorestframework~=3.13.1
+sendgrid~=6.9.7
+fpdf~=1.7.2
+python-dotenv~=0.20.0

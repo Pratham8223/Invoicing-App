@@ -86,7 +86,7 @@ class Invoice:
         if self.invoice_details['due_date'] is not None:
             self.pdf.multi_cell(
                 txt='{}'.format(
-                    datetime.datetime.strptime(self.invoice_details['created_at'].split('T')[0], '%Y-%m-%d').strftime(
+                    datetime.datetime.strptime(self.invoice_details['due_date'].split('T')[0], '%Y-%m-%d').strftime(
                         "%d/%m/%Y")), h=12,
                 w=110)
         else:
@@ -223,10 +223,10 @@ class Invoice:
 
         top = self.pdf.get_y()
         self.pdf.set_x(360)
-        self.pdf.multi_cell(txt="Tax / GST", w=60, h=12)
+        self.pdf.multi_cell(txt="Amount Paid", w=80, h=12)
         self.pdf.set_y(top)
         self.pdf.set_x(360 + 60 + 60)
-        self.pdf.multi_cell(txt="Rs. {PENDING}/-", w=0, h=12, align='R')
+        self.pdf.multi_cell(txt="Rs. {}/-".format(self.invoice_details['subtotal'] - self.invoice_details['pending_amount']), w=0, h=12, align='R')
 
         self.pdf.multi_cell(w=0, h=6)
 

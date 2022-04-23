@@ -51,4 +51,28 @@ export default class AuthAction {
             onError("Something went wrong.")
         }
     }
+
+    async sendVerificationLink(onSuccess, onError) {
+        try {
+            const res = await fetch(`${this.BASE_URL}auth/verify-user/`, {
+                method: 'GET',
+                credentials : 'include'
+            })
+
+            if (res.status === 200) {
+                onSuccess((await res.json()));
+            }
+
+            if (res.status > 399 && res.status < 499) {
+                onError((await res.json()).err);
+            }
+
+            if (res.status > 499) {
+                onError((await res.json()).err);
+            }
+        } catch (error) {
+            onError("Something went wrong.");
+        }
+    }
+
 }

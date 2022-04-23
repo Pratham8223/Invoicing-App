@@ -1,11 +1,12 @@
-import { Button, Container, FormControl, FormLabel, Grid, GridItem, Input, Text, Textarea, useDisclosure, useToast, Flex, Box } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { Button, Container, FormControl, FormLabel, Grid, GridItem, Input, Text, Textarea, useDisclosure, useToast, Flex, Box, Checkbox, useColorMode } from '@chakra-ui/react';
+import React, { useState, useRef } from 'react';
+import Recaptcha from 'react-recaptcha';
 import POAction from '../../actions/POAction';
+import { loadingRef } from '../../refs/LoadingRef';
 import AddPoDrawer from './AddPoDrawer';
 import NwPOTable from './NwPOTable';
 
 export default function NewPOPage() {
-
   const [invoiceDetails, setInvoiceDetails] = useState({
     customer_name: '',
     customer_email: '',
@@ -14,6 +15,7 @@ export default function NewPOPage() {
     pending_amount: 0,
     discount: 0,
     due_date: '',
+    send_to_customer: false,
     po_items: []
   })
   const toast = useToast();
@@ -21,7 +23,9 @@ export default function NewPOPage() {
 
   const { isOpen, onOpen, onClose } = useDisclosure()
   const btnRef = React.useRef()
-
+  const { current } = useRef(loadingRef)
+  const [subscribed, setSubscribed] = useState(false)
+  const { colorMode } = useColorMode()
 
   const getPoSubtotal = () => {
     var res = 0
@@ -34,33 +38,97 @@ export default function NewPOPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setIsLoading(true)
-    await new POAction().postInvoice(invoiceDetails, ({ id }) => {
+
+
+    console.log(subscribed)
+    if (subscribed === false) {
+      toast({
+        title: 'Error',
+        description: "Please verify captcha.",
+        isClosable: true,
+        status: 'error'
+      })
+      setIsLoading(false)
+      return
+    }
+
+
+    if ((getPoSubtotal() - invoiceDetails.discount) < 0 || (getPoSubtotal() - invoiceDetails.discount) < invoiceDetails.pending_amount) {
+      toast({
+        title: 'Error',
+        description: "Invalid invoice.",
+        isClosable: true,
+        status: 'error'
+      })
+      setIsLoading(false)
+      return;
+    }
+
+    current.current.continuousStart()
+
+    await new POAction().postInvoice(invoiceDetails, ({ id, email_status }) => {
+      if (email_status !== null) {
+        if (email_status) {
+          toast({
+            title: 'Email Sent!',
+            description: `Email sent successfully via email.`,
+            isClosable: true,
+            status: 'success'
+          })
+        } else {
+          toast({
+            title: 'Error',
+            description: `Invoice was not sent via email.`,
+            isClosable: true,
+            status: 'error'
+          })
+        }
+      }
+
       toast({
         title: 'Invoice created!',
         description: `Successfully created an invoice with id ${id} please check it out at purchase orders page.`,
         isClosable: true,
         status: 'success'
       })
+
       setInvoiceDetails({
         customer_name: '',
         customer_email: '',
         customer_phone: '',
         customer_address: '',
-        discount: 0.0,
+        pending_amount: 0,
+        discount: 0,
+        due_date: '',
+        send_to_customer: false,
         po_items: []
       })
+
       setIsLoading(false)
+      current.current.complete()
     }, (err) => {
-      toast({
-        title: 'Error',
-        description: 'Unable to create invoice',
-        isClosable: true,
-        status: 'error'
-      })
+      console.log(err)
+      if (err.err === 'Email not verified!. Please verify it in settings session.') {
+        toast({
+          title: 'Error',
+          description: 'Email not verified!. Please verify it in settings session.',
+          isClosable: true,
+          status: 'error'
+        })
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Unable to create invoice',
+          isClosable: true,
+          status: 'error'
+        })
+      }
+
       setIsLoading(false)
-      console.log({ err });
+      current.current.complete()
     })
   }
+
 
   return <>
     <Container maxW='container.2xl'>
@@ -73,33 +141,45 @@ export default function NewPOPage() {
           <form onSubmit={handleSubmit}>
             <FormControl>
               <FormLabel htmlFor='name'>Full Name</FormLabel>
-              <Input value={invoiceDetails.customer_name} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_name: e.target.value }) }} mb={4} id='name' type='text' />
+              <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.customer_name} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_name: e.target.value }) }} mb={4} id='name' type='text' />
 
               <FormLabel htmlFor='email'>Email Address</FormLabel>
-              <Input value={invoiceDetails.customer_email} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_email: e.target.value }) }} mb={4} id='email' type='email' />
+              <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.customer_email} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_email: e.target.value }) }} mb={4} id='email' type='email' />
 
               <FormLabel htmlFor='phone'>Phone no.</FormLabel>
-              <Input value={invoiceDetails.customer_phone} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_phone: e.target.value }) }} mb={4} id='phone' type='number' />
+              <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.customer_phone} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_phone: e.target.value }) }} mb={4} id='phone' type='number' />
 
               <FormLabel htmlFor='phone'>Address</FormLabel>
-              <Textarea value={invoiceDetails.customer_address} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_address: e.target.value }) }} mb={4} id='email' type='' />
+              <Textarea variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.customer_address} required onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, customer_address: e.target.value }) }} mb={4} id='email' type='' />
 
               <FormLabel htmlFor='email'>Discount (In amount)</FormLabel>
-              <Input value={invoiceDetails.discount} required min={0} onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, discount: e.target.value }) }} mb={4} id='phone' type='number' />
+              <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.discount} required min={0} onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, discount: e.target.value }) }} mb={4} id='phone' type='number' />
 
               <FormLabel htmlFor='email'>Pending Amount</FormLabel>
-              <Input value={invoiceDetails.pending_amount} required min={0} onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, pending_amount: e.target.value }) }} mb={4} id='phone' type='number' />
+              <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} value={invoiceDetails.pending_amount} required min={0} onChange={(e) => { setInvoiceDetails({ ...invoiceDetails, pending_amount: e.target.value }) }} mb={4} id='phone' type='number' />
               {
                 invoiceDetails.pending_amount > 0 ?
                   <>
                     <FormLabel htmlFor='due-date'>Due Date</FormLabel>
-                    <Input type='date' value={invoiceDetails.due_date}
-                    required
-                    onChange={e => { 
-                      console.log(e.target.value)
-                      setInvoiceDetails({ ...invoiceDetails, due_date: e.target.value }) }} id='due-date' mb={4} /></> : null
+                    <Input variant='outline' backgroundColor={colorMode === 'light' ? 'white' : 'whiteAlpha.200'} type='date' value={invoiceDetails.due_date}
+                      required
+                      onChange={e => {
+                        console.log(e.target.value)
+                        setInvoiceDetails({ ...invoiceDetails, due_date: e.target.value })
+                      }} id='due-date' mb={4} /></> : null
               }
-              <Button disabled={isLoading} bgColor='blue.400' type='submit' color='white'>{isLoading ? "Loading..." : "Create Invoice"}</Button>
+              <Checkbox defaultChecked={invoiceDetails.send_to_customer} checked={invoiceDetails.send_to_customer}
+                onChange={e => { setInvoiceDetails({ ...invoiceDetails, send_to_customer: e.target.checked }) }}
+              >Send to customer via Email</Checkbox><br />
+              <br />
+              <Recaptcha
+                expiredCallback={() => { setSubscribed(false) }}
+                render='explicit'
+                sitekey={process.env.REACT_APP_GOGLE_RECAPTCHA_SITE_KEY} verifyCallback={e => {
+                  setSubscribed(true)
+                }} />
+
+              <Button disabled={isLoading} bgColor='blue.400' type='submit' color='white' mt='5'>{isLoading ? "Loading..." : "Create Invoice"}</Button>
             </FormControl>
           </form>
         </GridItem>
