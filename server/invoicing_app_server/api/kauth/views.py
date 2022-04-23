@@ -83,7 +83,7 @@ def verify_user(request: WSGIRequest):
     else:
         ran_str = generate_random_str()
         ActivateSession(session_id=ran_str, usr=request.user).save()
-        if send_email(to_email='suyash.lawand@gmail.com', subject="Test",
+        if send_email(to_email=request.user.email, subject="Email verification.",
                       content="<a href='{}'>Verify Email!</a>".format(
                           os.environ['SELF_URI'] + f'auth/activate-session/{ran_str}/')) == "OK":
             return Response({'message': 'Verification link sent at  : {}.\nPlease check your email.'.format(request.user.email)}, status=200)

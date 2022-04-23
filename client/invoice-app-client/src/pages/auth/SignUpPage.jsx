@@ -50,6 +50,12 @@ export default function SignUpPage() {
                     description: 'Phone no. already registered!',
                     status: 'error',
                 })
+            } else {
+                toast({
+                    title: 'Error',
+                    description: err,
+                    status: 'error',
+                })
             }
             console.log({ err })
         })
