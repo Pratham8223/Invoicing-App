@@ -91,7 +91,7 @@ def user_id(request: WSGIRequest, id: int):
             elif k == 'phone':
                 if not val.isnumeric():
                     return JsonResponse({'err': 'Should not contain chars.'}, status=400)
-                usr.last_name = val
+                usr.phone = val
             elif k == 'email':
                 return JsonResponse({'err': 'Cannot edit email once set.'}, status=400)
 

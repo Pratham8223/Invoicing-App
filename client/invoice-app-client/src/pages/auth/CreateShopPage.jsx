@@ -131,7 +131,7 @@ export default function CreateShop() {
                                     _hover={{
                                         bg: 'blue.500',
                                     }}>
-                                    Sign up
+                                    Save Shop!
                                 </Button>
                             </Stack>
                         </form>

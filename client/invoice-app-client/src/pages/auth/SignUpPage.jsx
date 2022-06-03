@@ -117,7 +117,7 @@ export default function SignUpPage() {
                         </FormControl>
                         <Stack spacing={6}>
                             <Button colorScheme={'blue'} variant={'solid'} type='submit' mt={5}>
-                                Sign in
+                                Create an account
                             </Button>
                         </Stack>
                         <br />
